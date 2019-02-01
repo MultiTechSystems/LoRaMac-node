@@ -28,7 +28,7 @@
 
         // Select LoRaMac sub project. You can choose between:
         // classA, classB or classC.
-        "CLASS":"classB",
+        "CLASS":"classA",
 
         // Switch for Class B support of LoRaMac:
         "CLASSB_ENABLED":"ON",
@@ -36,7 +36,7 @@
         // Select the active region for which the stack will be initialized.
         // You can choose between:
         // LORAMAC_REGION_EU868, LORAMAC_REGION_US915, ..
-        "ACTIVE_REGION":"LORAMAC_REGION_AU915",
+        "ACTIVE_REGION":"LORAMAC_REGION_EU868",
 
         // Select the type of modulation, applicable to the ping-pong or
         // rx-sensi applications. You can choose between:
@@ -45,7 +45,7 @@
 
         // Target board, the following boards are supported:
         // NAMote72, NucleoL073 (Default), NucleoL152, NucleoL476, SAML21, SKiM880B, SKiM980A, SKiM881AXL and B-L072Z-LRWAN1.
-        "BOARD":"MTS_XDOT",
+        "BOARD":"MTS_MDOT",
 
         // MBED Radio shield selection. (Applies only to Nucleo platforms)
         // The following shields are supported:
