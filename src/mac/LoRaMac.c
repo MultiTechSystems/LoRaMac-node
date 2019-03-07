@@ -4449,6 +4449,7 @@ LoRaMacStatus_t LoRaMacMcpsRequest( McpsReq_t* mcpsRequest )
         }
 
         status = Send( &macHdr, fPort, fBuffer, fBufferSize );
+        printf("Send\r\n");
         if( status == LORAMAC_STATUS_OK )
         {
             MacCtx.McpsConfirm.McpsRequest = mcpsRequest->Type;

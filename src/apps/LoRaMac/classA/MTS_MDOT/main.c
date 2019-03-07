@@ -35,7 +35,7 @@
 
 #warning "No active region defined, LORAMAC_REGION_EU868 will be used as default."
 
-#define ACTIVE_REGION LORAMAC_REGION_EU868
+#define ACTIVE_REGION LORAMAC_REGION_US915
 
 #endif
 
@@ -67,7 +67,6 @@
  */
 #define LORAWAN_ADR_ON                              1
 
-#if defined( REGION_EU868 ) || defined( REGION_RU864 ) || defined( REGION_CN779 ) || defined( REGION_EU433 )
 
 #include "LoRaMacTest.h"
 
@@ -76,9 +75,8 @@
  *
  * \remark Please note that ETSI mandates duty cycled transmissions. Use only for test purposes
  */
-#define LORAWAN_DUTYCYCLE_ON                        true
+#define LORAWAN_DUTYCYCLE_ON                        false
 
-#endif
 
 /*!
  * LoRaWAN application port
@@ -947,8 +945,6 @@ int main( void )
     LoRaMacInitialization( &macPrimitives, &macCallbacks, ACTIVE_REGION );
 
     DeviceState = DEVICE_STATE_RESTORE;
-    while (true)
-        printf("HEEEEEEEE\r\n");
 
     printf( "###### ===== ClassA demo application v1.0.RC1 ==== ######\r\n\r\n" );
 

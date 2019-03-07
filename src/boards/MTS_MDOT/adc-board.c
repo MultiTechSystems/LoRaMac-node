@@ -20,7 +20,7 @@
  *
  * \author    Gregory Cristian ( Semtech )
  */
-#include "stm32l1xx.h"
+#include "stm32f4xx.h"
 #include "board-config.h"
 #include "adc-board.h"
 

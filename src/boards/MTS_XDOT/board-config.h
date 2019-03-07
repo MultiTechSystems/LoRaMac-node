@@ -51,25 +51,6 @@
 #define RADIO_MISO                                  PB_4
 #define RADIO_SCLK                                  PB_3
 
-#if defined( SX1261MBXBAS ) || defined( SX1262MBXCAS ) || defined( SX1262MBXDAS )
-
-#define RADIO_NSS                                   PA_8
-#define RADIO_BUSY                                  PB_3
-#define RADIO_DIO_1                                 PB_4
-
-#define RADIO_ANT_SWITCH_POWER                      PA_9
-#define RADIO_FREQ_SEL                              PA_1
-#define RADIO_XTAL_SEL                              PB_0
-#define RADIO_DEVICE_SEL                            PA_4
-
-#define LED_1                                       PC_1
-#define LED_2                                       PC_0
-
-// Debug pins definition.
-#define RADIO_DBG_PIN_TX                            PB_6
-#define RADIO_DBG_PIN_RX                            PC_7
-
-#elif defined( SX1272MB2DAS) || defined( SX1276MB1LAS ) || defined( SX1276MB1MAS )
 
 #define RADIO_NSS                                   PA_15
 
@@ -86,10 +67,8 @@
 #define LED_2                                       NC
 
 // Debug pins definition.
-#define RADIO_DBG_PIN_TX                            PA_2
-#define RADIO_DBG_PIN_RX                            PA_3
-
-#endif
+#define RADIO_DBG_PIN_TX                            NC
+#define RADIO_DBG_PIN_RX                            NC
 
 #define OSC_LSE_IN                                  PC_14
 #define OSC_LSE_OUT                                 PC_15
@@ -103,7 +82,7 @@
 #define I2C_SCL                                     PB_8
 #define I2C_SDA                                     PB_9
 
-#define UART_TX                                     PA_9
-#define UART_RX                                     PA_10
+#define UART_TX                                     PA_2
+#define UART_RX                                     PA_3
 
 #endif // __BOARD_CONFIG_H__

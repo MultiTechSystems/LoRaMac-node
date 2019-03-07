@@ -23,7 +23,7 @@
  * \author    MCD Application Team (C)( STMicroelectronics International )
  */
 #include <stdint.h>
-#include "stm32F4xx.h"
+#include "stm32f4xx.h"
 #include "utilities.h"
 #include "lpm-board.h"
 

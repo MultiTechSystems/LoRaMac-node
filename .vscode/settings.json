@@ -55,10 +55,10 @@
         // Region support activation, Select the ones you want to support.
         // By default only REGION_EU868 support is enabled.
         "REGION_EU868":"OFF",
-        "REGION_US915":"OFF",
+        "REGION_US915":"ON",
         "REGION_CN779":"OFF",
         "REGION_EU433":"OFF",
-        "REGION_AU915":"ON",
+        "REGION_AU915":"OFF",
         "REGION_AS923":"OFF",
         "REGION_CN470":"OFF",
         "REGION_KR920":"OFF",

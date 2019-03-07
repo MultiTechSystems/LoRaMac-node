@@ -172,16 +172,16 @@ void RtcInit( void )
         RtcHandle.Init.OutPutType     = RTC_OUTPUT_TYPE_OPENDRAIN;
         HAL_RTC_Init( &RtcHandle );
 
-        date.Year                     = 0;
+        date.Year                     = 2019;
         date.Month                    = RTC_MONTH_JANUARY;
         date.Date                     = 1;
         date.WeekDay                  = RTC_WEEKDAY_MONDAY;
         HAL_RTC_SetDate( &RtcHandle, &date, RTC_FORMAT_BIN );
 
         /*at 0:0:0*/
-        time.Hours                    = 0;
-        time.Minutes                  = 0;
-        time.Seconds                  = 0;
+        time.Hours                    = 1;
+        time.Minutes                  = 1;
+        time.Seconds                  = 1;
         time.SubSeconds               = 0;
         time.TimeFormat               = 0;
         time.StoreOperation           = RTC_DAYLIGHTSAVING_NONE;

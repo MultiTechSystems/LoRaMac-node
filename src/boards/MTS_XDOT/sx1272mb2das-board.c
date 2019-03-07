@@ -82,28 +82,16 @@ Gpio_t AntSwitch;
 /*!
  * Debug GPIO pins objects
  */
-#if defined( USE_RADIO_DEBUG )
-Gpio_t DbgPinTx;
-Gpio_t DbgPinRx;
-#endif
 
 void SX1272IoInit( void )
 {
-    GpioInit( &SX1272.Spi.Nss, RADIO_NSS, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 1 );
+    GpioInit( &SX1272.Spi.Nss, RADIO_NSS, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
 
+    GpioInit( &SX1272.DIO3, RADIO_DIO_3, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
+    GpioInit( &SX1272.DIO4, RADIO_DIO_4, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
     GpioInit( &SX1272.DIO0, RADIO_DIO_0, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
     GpioInit( &SX1272.DIO1, RADIO_DIO_1, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
     GpioInit( &SX1272.DIO2, RADIO_DIO_2, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
-    GpioInit( &SX1272.DIO3, RADIO_DIO_3, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
-    // DIO4 and DIO5 aren't connected.
-    // Initialize Gpio_t port to NULL.
-    SX1272.DIO4.port = NULL;
-    SX1272.DIO5.port = NULL;
-
-#if defined( USE_RADIO_DEBUG )
-    GpioInit( &DbgPinTx, RADIO_DBG_PIN_TX, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &DbgPinRx, RADIO_DBG_PIN_RX, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-#endif
 }
 
 void SX1272IoIrqInit( DioIrqHandler **irqHandlers )
@@ -111,7 +99,6 @@ void SX1272IoIrqInit( DioIrqHandler **irqHandlers )
     GpioSetInterrupt( &SX1272.DIO0, IRQ_RISING_EDGE, IRQ_HIGH_PRIORITY, irqHandlers[0] );
     GpioSetInterrupt( &SX1272.DIO1, IRQ_RISING_EDGE, IRQ_HIGH_PRIORITY, irqHandlers[1] );
     GpioSetInterrupt( &SX1272.DIO2, IRQ_RISING_EDGE, IRQ_HIGH_PRIORITY, irqHandlers[2] );
-    GpioSetInterrupt( &SX1272.DIO3, IRQ_RISING_EDGE, IRQ_HIGH_PRIORITY, irqHandlers[3] );
 }
 
 void SX1272IoDeInit( void )
@@ -152,20 +139,17 @@ uint32_t SX1272GetBoardTcxoWakeupTime( void )
 
 void SX1272Reset( void )
 {
-    // Enables the TCXO if available on the board design
-    SX1272SetBoardTcxo( true );
-
     // Set RESET pin to 1
     GpioInit( &SX1272.Reset, RADIO_RESET, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
 
     // Wait 1 ms
-    DelayMs( 1 );
+    DelayMs( 2 );
 
     // Configure RESET as input
     GpioInit( &SX1272.Reset, RADIO_RESET, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
 
     // Wait 6 ms
-    DelayMs( 6 );
+    DelayMs( 10 );
 }
 
 void SX1272SetRfTxPower( int8_t power )
@@ -231,7 +215,7 @@ void SX1272SetRfTxPower( int8_t power )
 
 static uint8_t SX1272GetPaSelect( uint32_t channel )
 {
-    return RF_PACONFIG_PASELECT_RFO;
+    return RF_PACONFIG_PASELECT_PABOOST;
 }
 
 void SX1272SetAntSwLowPower( bool status )
@@ -288,11 +272,9 @@ bool SX1272CheckRfFrequency( uint32_t frequency )
 #if defined( USE_RADIO_DEBUG )
 void SX1272DbgPinTxWrite( uint8_t state )
 {
-    GpioWrite( &DbgPinTx, state );
 }
 
 void SX1272DbgPinRxWrite( uint8_t state )
 {
-    GpioWrite( &DbgPinRx, state );
 }
 #endif

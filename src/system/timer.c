@@ -357,7 +357,6 @@ TimerTime_t TimerGetElapsedTime( TimerTime_t past )
     }
     uint32_t nowInTicks = RtcGetTimerValue( );
     uint32_t pastInTicks = RtcMs2Tick( past );
-
     // Intentional wrap around. Works Ok if tick duration below 1ms
     return RtcTick2Ms( nowInTicks - pastInTicks );
 }

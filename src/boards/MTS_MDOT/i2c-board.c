@@ -20,7 +20,7 @@
  *
  * \author    Gregory Cristian ( Semtech )
  */
-#include "stm32F4xx.h"
+#include "stm32f4xx.h"
 #include "utilities.h"
 #include "board-config.h"
 #include "i2c-board.h"

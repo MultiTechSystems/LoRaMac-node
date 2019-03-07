@@ -152,12 +152,12 @@
 /*!
  * Join accept delay 1
  */
-#define EU868_JOIN_ACCEPT_DELAY1                    5000
+#define EU868_JOIN_ACCEPT_DELAY1                    1000
 
 /*!
  * Join accept delay 2
  */
-#define EU868_JOIN_ACCEPT_DELAY2                    6000
+#define EU868_JOIN_ACCEPT_DELAY2                    2000
 
 /*!
  * Maximum frame counter gap

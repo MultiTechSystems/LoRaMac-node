@@ -31,14 +31,7 @@
 #include "board-config.h"
 #include "lpm-board.h"
 #include "rtc-board.h"
-
-#if defined( SX1261MBXBAS ) || defined( SX1262MBXCAS ) || defined( SX1262MBXDAS )
-    #include "sx126x-board.h"
-#elif defined( SX1272MB2DAS)
-    #include "sx1272-board.h"
-#elif defined( SX1276MB1LAS ) || defined( SX1276MB1MAS )
-    #include "sx1276-board.h"
-#endif
+#include "sx1272-board.h"
 #include "board.h"
 
 /*!
@@ -139,13 +132,9 @@ void BoardInitMcu( void )
     {
         HAL_Init( );
 
-        // LEDs
-        GpioInit( &Led1, LED_1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-        GpioInit( &Led2, LED_2, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-
         SystemClockConfig( );
 
-        UsbIsConnected = true;
+        UsbIsConnected = false;
 
         FifoInit( &Uart2.FifoTx, Uart2TxBuffer, UART2_FIFO_TX_SIZE );
         FifoInit( &Uart2.FifoRx, Uart2RxBuffer, UART2_FIFO_RX_SIZE );
@@ -154,29 +143,16 @@ void BoardInitMcu( void )
         UartConfig( &Uart2, RX_TX, 115200, UART_8_BIT, UART_1_STOP_BIT, NO_PARITY, NO_FLOW_CTRL );
 
         RtcInit( );
-
+        SystemCoreClockUpdate();
         BoardUnusedIoInit( );
-        if( GetBoardPowerSource( ) == BATTERY_POWER )
-        {
-            // Disables OFF mode - Enables lowest power mode (STOP)
-            LpmSetOffMode( LPM_APPLI_ID, LPM_DISABLE );
-        }
     }
     else
     {
         SystemClockReConfig( );
     }
 
-#if defined( SX1261MBXBAS ) || defined( SX1262MBXCAS ) || defined( SX1262MBXDAS )
-    SpiInit( &SX126x.Spi, SPI_1, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
-    SX126xIoInit( );
-#elif defined( SX1272MB2DAS)
-    SpiInit( &SX1272.Spi, SPI_1, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
+    SpiInit( &SX1272.Spi, SPI_1, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, RADIO_NSS);
     SX1272IoInit( );
-#elif defined( SX1276MB1LAS ) || defined( SX1276MB1MAS )
-    SpiInit( &SX1276.Spi, SPI_1, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
-    SX1276IoInit( );
-#endif
 
     if( McuInitialized == false )
     {
@@ -199,16 +175,8 @@ void BoardResetMcu( void )
 
 void BoardDeInitMcu( void )
 {
-#if defined( SX1261MBXBAS ) || defined( SX1262MBXCAS ) || defined( SX1262MBXDAS )
-    SpiDeInit( &SX126x.Spi );
-    SX126xIoDeInit( );
-#elif defined( SX1272MB2DAS)
     SpiDeInit( &SX1272.Spi );
     SX1272IoDeInit( );
-#elif defined( SX1276MB1LAS ) || defined( SX1276MB1MAS )
-    SpiDeInit( &SX1276.Spi );
-    SX1276IoDeInit( );
-#endif
 }
 
 uint32_t BoardGetRandomSeed( void )
