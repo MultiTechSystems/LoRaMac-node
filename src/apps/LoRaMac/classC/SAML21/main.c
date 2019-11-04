@@ -92,9 +92,11 @@
  */
 #define LORAWAN_APP_PORT                            2
 
-static uint8_t DevEui[] = LORAWAN_DEVICE_EUI;
-static uint8_t JoinEui[] = LORAWAN_JOIN_EUI;
+#if( ABP_ACTIVATION_LRWAN_VERSION == ABP_ACTIVATION_LRWAN_VERSION_V10x )
+static uint8_t GenAppKey[] = LORAWAN_GEN_APP_KEY;
+#else
 static uint8_t AppKey[] = LORAWAN_APP_KEY;
+#endif
 static uint8_t NwkKey[] = LORAWAN_NWK_KEY;
 
 #if( OVER_THE_AIR_ACTIVATION == 0 )
@@ -264,6 +266,7 @@ const char* MacStatusStrings[] =
     "MAC command error",             // LORAMAC_STATUS_MAC_COMMAD_ERROR
     "ClassB error",                  // LORAMAC_STATUS_CLASS_B_ERROR
     "Confirm queue error",           // LORAMAC_STATUS_CONFIRM_QUEUE_ERROR
+    "Multicast group undefined",     // LORAMAC_STATUS_MC_GROUP_UNDEFINED
     "Unknown error",                 // LORAMAC_STATUS_ERROR
 };
 
@@ -327,8 +330,6 @@ static void JoinNetwork( void )
     LoRaMacStatus_t status;
     MlmeReq_t mlmeReq;
     mlmeReq.Type = MLME_JOIN;
-    mlmeReq.Req.Join.DevEui = DevEui;
-    mlmeReq.Req.Join.JoinEui = JoinEui;
     mlmeReq.Req.Join.Datarate = LORAWAN_DEFAULT_DATARATE;
 
     // Starts the join procedure
@@ -798,6 +799,17 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
                         ComplianceTest.State = 1;
                     }
                     break;
+                case 8: // Send DeviceTimeReq
+                    {
+                        MlmeReq_t mlmeReq;
+
+                        mlmeReq.Type = MLME_DEVICE_TIME;
+
+                        LoRaMacStatus_t status = LoRaMacMlmeRequest( &mlmeReq );
+                        printf( "\r\n###### ===== MLME-Request - MLME_DEVICE_TIME ==== ######\r\n" );
+                        printf( "STATUS      : %s\r\n", MacStatusStrings[status] );
+                    }
+                    break;
                 default:
                     break;
                 }
@@ -812,7 +824,7 @@ static void McpsIndication( McpsIndication_t *mcpsIndication )
     GpioWrite( &Led1, 1 );
     TimerStart( &Led2Timer );
 
-    const char *slotStrings[] = { "1", "2", "C", "Ping-Slot", "Multicast Ping-Slot" };
+    const char *slotStrings[] = { "1", "2", "C", "C Multicast", "B Ping-Slot", "B Multicast Ping-Slot" };
 
     printf( "\r\n###### ===== DOWNLINK FRAME %lu ==== ######\r\n", mcpsIndication->DownLinkCounter );
 
@@ -937,6 +949,8 @@ int main( void )
     LoRaMacCallback_t macCallbacks;
     MibRequestConfirm_t mibReq;
     LoRaMacStatus_t status;
+    uint8_t devEui[] = LORAWAN_DEVICE_EUI;
+    uint8_t joinEui[] = LORAWAN_JOIN_EUI;
 
     BoardInitMcu( );
     BoardInitPeriph( );
@@ -979,22 +993,43 @@ int main( void )
                 }
                 else
                 {
+#if( OVER_THE_AIR_ACTIVATION == 0 )
+                    // Tell the MAC layer which network server version are we connecting too.
+                    mibReq.Type = MIB_ABP_LORAWAN_VERSION;
+                    mibReq.Param.AbpLrWanVersion.Value = ABP_ACTIVATION_LRWAN_VERSION;
+                    LoRaMacMibSetRequestConfirm( &mibReq );
+#endif
+
+#if( ABP_ACTIVATION_LRWAN_VERSION == ABP_ACTIVATION_LRWAN_VERSION_V10x )
+                    mibReq.Type = MIB_GEN_APP_KEY;
+                    mibReq.Param.GenAppKey = GenAppKey;
+                    LoRaMacMibSetRequestConfirm( &mibReq );
+#else
                     mibReq.Type = MIB_APP_KEY;
                     mibReq.Param.AppKey = AppKey;
                     LoRaMacMibSetRequestConfirm( &mibReq );
+#endif
 
                     mibReq.Type = MIB_NWK_KEY;
                     mibReq.Param.NwkKey = NwkKey;
                     LoRaMacMibSetRequestConfirm( &mibReq );
 
                     // Initialize LoRaMac device unique ID if not already defined in Commissioning.h
-                    if( ( DevEui[0] == 0 ) && ( DevEui[1] == 0 ) &&
-                        ( DevEui[2] == 0 ) && ( DevEui[3] == 0 ) &&
-                        ( DevEui[4] == 0 ) && ( DevEui[5] == 0 ) &&
-                        ( DevEui[6] == 0 ) && ( DevEui[7] == 0 ) )
+                    if( ( devEui[0] == 0 ) && ( devEui[1] == 0 ) &&
+                        ( devEui[2] == 0 ) && ( devEui[3] == 0 ) &&
+                        ( devEui[4] == 0 ) && ( devEui[5] == 0 ) &&
+                        ( devEui[6] == 0 ) && ( devEui[7] == 0 ) )
                     {
-                        BoardGetUniqueId( DevEui );
+                        BoardGetUniqueId( devEui );
                     }
+
+                    mibReq.Type = MIB_DEV_EUI;
+                    mibReq.Param.DevEui = devEui;
+                    LoRaMacMibSetRequestConfirm( &mibReq );
+
+                    mibReq.Type = MIB_JOIN_EUI;
+                    mibReq.Param.JoinEui = joinEui;
+                    LoRaMacMibSetRequestConfirm( &mibReq );
 
 #if( OVER_THE_AIR_ACTIVATION == 0 )
                     // Choose a random device address if not already defined in Commissioning.h
@@ -1059,21 +1094,25 @@ int main( void )
 
 #if( USE_TTN_NETWORK == 1 )
                 mibReq.Type = MIB_RX2_DEFAULT_CHANNEL;
-                mibReq.Param.Rx2DefaultChannel = ( Rx2ChannelParams_t ){ 869525000, DR_3 };
+                mibReq.Param.Rx2DefaultChannel = ( RxChannelParams_t ){ 869525000, DR_3 };
                 LoRaMacMibSetRequestConfirm( &mibReq );
 
                 mibReq.Type = MIB_RX2_CHANNEL;
-                mibReq.Param.Rx2Channel = ( Rx2ChannelParams_t ){ 869525000, DR_3 };
+                mibReq.Param.Rx2Channel = ( RxChannelParams_t ){ 869525000, DR_3 };
+                LoRaMacMibSetRequestConfirm( &mibReq );
+
+                mibReq.Type = MIB_RXC_DEFAULT_CHANNEL;
+                mibReq.Param.RxCDefaultChannel = ( RxChannelParams_t ){ 869525000, DR_3 };
+                LoRaMacMibSetRequestConfirm( &mibReq );
+
+                mibReq.Type = MIB_RXC_CHANNEL;
+                mibReq.Param.RxCChannel = ( RxChannelParams_t ){ 869525000, DR_3 };
                 LoRaMacMibSetRequestConfirm( &mibReq );
 #endif
 
 #endif
                 mibReq.Type = MIB_SYSTEM_MAX_RX_ERROR;
                 mibReq.Param.SystemMaxRxError = 20;
-                LoRaMacMibSetRequestConfirm( &mibReq );
-
-                mibReq.Type = MIB_DEVICE_CLASS;
-                mibReq.Param.Class = CLASS_C;
                 LoRaMacMibSetRequestConfirm( &mibReq );
 
                 LoRaMacStart( );
@@ -1097,16 +1136,20 @@ int main( void )
             }
             case DEVICE_STATE_JOIN:
             {
-                printf( "DevEui      : %02X", DevEui[0] );
+                mibReq.Type = MIB_DEV_EUI;
+                LoRaMacMibGetRequestConfirm( &mibReq );
+                printf( "DevEui      : %02X", mibReq.Param.DevEui[0] );
                 for( int i = 1; i < 8; i++ )
                 {
-                    printf( "-%02X", DevEui[i] );
+                    printf( "-%02X", mibReq.Param.DevEui[i] );
                 }
                 printf( "\r\n" );
-                printf( "AppEui      : %02X", JoinEui[0] );
+                mibReq.Type = MIB_JOIN_EUI;
+                LoRaMacMibGetRequestConfirm( &mibReq );
+                printf( "AppEui      : %02X", mibReq.Param.JoinEui[0] );
                 for( int i = 1; i < 8; i++ )
                 {
-                    printf( "-%02X", JoinEui[i] );
+                    printf( "-%02X", mibReq.Param.JoinEui[i] );
                 }
                 printf( "\r\n" );
                 printf( "AppKey      : %02X", NwkKey[0] );
@@ -1132,11 +1175,6 @@ int main( void )
                 }
                 printf( "\n\r\n" );
 
-                // Tell the MAC layer which network server version are we connecting too.
-                mibReq.Type = MIB_ABP_LORAWAN_VERSION;
-                mibReq.Param.AbpLrWanVersion.Value = ABP_ACTIVATION_LRWAN_VERSION;
-                LoRaMacMibSetRequestConfirm( &mibReq );
-
                 mibReq.Type = MIB_NETWORK_ACTIVATION;
                 mibReq.Param.NetworkActivation = ACTIVATION_TYPE_ABP;
                 LoRaMacMibSetRequestConfirm( &mibReq );
@@ -1151,6 +1189,15 @@ int main( void )
             {
                 if( NextTx == true )
                 {
+                    mibReq.Type = MIB_DEVICE_CLASS;
+                    LoRaMacMibGetRequestConfirm( &mibReq );
+
+                    if( mibReq.Param.Class!= CLASS_C )
+                    {
+                        mibReq.Param.Class = CLASS_C;
+                        LoRaMacMibSetRequestConfirm( &mibReq );
+                    }
+
                     PrepareTxFrame( AppPort );
 
                     NextTx = SendFrame( );

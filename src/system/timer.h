@@ -23,6 +23,11 @@
 #ifndef __TIMER_H__
 #define __TIMER_H__
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -46,6 +51,7 @@ typedef struct TimerEvent_s
  */
 #ifndef TimerTime_t
 typedef uint32_t TimerTime_t;
+#define TIMERTIME_T_MAX                             ( ( uint32_t )~0 )
 #endif
 
 /*!
@@ -143,5 +149,9 @@ TimerTime_t TimerTempCompensation( TimerTime_t period, float temperature );
  * \brief Processes pending timer events
  */
 void TimerProcess( void );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __TIMER_H__

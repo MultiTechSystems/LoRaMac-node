@@ -37,6 +37,11 @@
 #ifndef __REGION_AU915_H__
 #define __REGION_AU915_H__
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include "region/Region.h"
 
 /*!
@@ -93,7 +98,7 @@
 /*!
  * Minimal Tx output power that can be used by the node
  */
-#define AU915_MIN_TX_POWER                          TX_POWER_10
+#define AU915_MIN_TX_POWER                          TX_POWER_14
 
 /*!
  * Maximal Tx output power that can be used by the node
@@ -292,7 +297,7 @@ static const int8_t DatarateOffsetsAU915[7][6] =
  * Maximum payload with respect to the datarate index. Cannot operate with repeater.
  * The table is valid for the dwell time configuration of 0 for uplinks.
  */
-static const uint8_t MaxPayloadOfDatarateDwell0AU915[] = { 51, 51, 51, 115, 242, 242, 242, 242, 0, 53, 129, 242, 242, 242, 242 };
+static const uint8_t MaxPayloadOfDatarateDwell0AU915[] = { 51, 51, 51, 115, 242, 242, 242, 0, 53, 129, 242, 242, 242, 242 };
 
 /*!
  * Maximum payload with respect to the datarate index. Can operate with repeater.
@@ -305,14 +310,14 @@ static const uint8_t MaxPayloadOfDatarateRepeaterDwell0AU915[] = { 51, 51, 51, 1
  * Maximum payload with respect to the datarate index. Cannot operate with repeater.
  * The table is valid for the dwell time configuration of 1 for uplinks.
  */
-static const uint8_t MaxPayloadOfDatarateDwell1AU915[] = { 0, 0, 11, 53, 125, 242, 242, 0, 53, 129, 129, 242, 242, 242, 242 };
+static const uint8_t MaxPayloadOfDatarateDwell1AU915[] = { 0, 0, 11, 53, 125, 242, 242, 0, 53, 129, 242, 242, 242, 242 };
 
 /*!
  * Maximum payload with respect to the datarate index. Can operate with repeater.
  * The table is valid for the dwell time configuration of 1 for uplinks. The table provides
  * repeater support.
  */
-static const uint8_t MaxPayloadOfDatarateRepeaterDwell1AU915[] = { 0, 0, 11, 53, 125, 242, 242, 0, 33, 119, 129, 242, 242, 242, 242 };
+static const uint8_t MaxPayloadOfDatarateRepeaterDwell1AU915[] = { 0, 0, 11, 53, 125, 242, 242, 0, 33, 109, 222, 222, 222, 222 };
 
 /*!
  * \brief The function gets a value of a specific phy attribute.
@@ -536,5 +541,9 @@ uint8_t RegionAU915ApplyDrOffset( uint8_t downlinkDwellTime, int8_t dr, int8_t d
  void RegionAU915RxBeaconSetup( RxBeaconSetup_t* rxBeaconSetup, uint8_t* outDr );
 
 /*! \} defgroup REGIONAU915 */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __REGION_AU915_H__

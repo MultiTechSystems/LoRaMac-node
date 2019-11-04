@@ -35,6 +35,11 @@
 #ifndef __LORAMAC_COMMANDS_H__
 #define __LORAMAC_COMMANDS_H__
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <stdint.h>
 #include <stddef.h>
 #include "LoRaMacTypes.h"
@@ -109,7 +114,7 @@ typedef enum eLoRaMacCommandsStatus
  * Signature of callback function to be called by this module when the
  * non-volatile needs to be saved.
  */
-typedef void ( *EventNvmCtxChanged )( void );
+typedef void ( *LoRaMacCommandsNvmEvent )( void );
 
 /*!
  * \brief Initialization of LoRaMac MAC commands module
@@ -119,7 +124,7 @@ typedef void ( *EventNvmCtxChanged )( void );
  *
  * \retval                            - Status of the operation
  */
-LoRaMacCommandStatus_t LoRaMacCommandsInit( EventNvmCtxChanged commandsNvmCtxChanged );
+LoRaMacCommandStatus_t LoRaMacCommandsInit( LoRaMacCommandsNvmEvent commandsNvmCtxChanged );
 
 /*!
  * Restores the internal non-volatile context from passed pointer.
@@ -213,6 +218,10 @@ LoRaMacCommandStatus_t LoRaMacCommandsSerializeCmds( size_t availableSize, size_
 LoRaMacCommandStatus_t LoRaMacCommandsStickyCmdsPending( bool* cmdsPending );
 
 /*! \} addtogroup LORAMAC */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __LORAMAC_COMMANDS_H__
 
