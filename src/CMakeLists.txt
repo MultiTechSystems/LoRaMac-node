@@ -100,7 +100,7 @@ elseif(BOARD STREQUAL MTS_XDOT)
 elseif(BOARD STREQUAL MTS_MDOT)
     # Configure toolchain for MTS_MDOT
     set(LINKER_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/boards/MTS_MDOT/cmsis/arm-gcc/STM32F411RETx_FLASH.ld)
-    include(stm32l1)
+    include(stm32f4)
 
     # Build platform specific board implementation
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/boards/MTS_MDOT)

@@ -129,7 +129,7 @@ void SX1272IoDeInit( void )
  *
  * \param [IN] state TCXO enabled when true and disabled when false.
  */
-static void SX1272SetBoardTcxo( uint8_t state )
+void SX1272SetBoardTcxo( uint8_t state )
 {
     // No TCXO component available on this board design.
 #if 0
@@ -231,7 +231,7 @@ void SX1272SetRfTxPower( int8_t power )
 
 static uint8_t SX1272GetPaSelect( uint32_t channel )
 {
-    return RF_PACONFIG_PASELECT_RFO;
+    return RF_PACONFIG_PASELECT_PABOOST;
 }
 
 void SX1272SetAntSwLowPower( bool status )

@@ -82,8 +82,15 @@
 
 #define RADIO_ANT_SWITCH                            NC
 
-#define LED_1                                       NC
-#define LED_2                                       NC
+// #define LED_1                                       NC
+// #define LED_2                                       NC
+// #define LED_3                                       NC
+// #define LED_4                                       NC
+
+#define LED_1                                       PC_13   /* D2 */
+#define LED_2                                       PA_0    /* D3 */
+#define LED_3                                       PA_1    /* D5 */
+#define LED_4                                       PA_11   /* D6 */
 
 // Debug pins definition.
 #define RADIO_DBG_PIN_TX                            PA_9

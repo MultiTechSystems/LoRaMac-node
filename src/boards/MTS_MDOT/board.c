@@ -44,15 +44,17 @@
 /*!
  * Unique Devices IDs register set ( STM32F411x )
  */
-#define         ID1                                 ( 0x1FF800D0 )
-#define         ID2                                 ( 0x1FF800D4 )
-#define         ID3                                 ( 0x1FF800E4 )
+#define         ID1                                 ( 0x1FFF7A10 )
+#define         ID2                                 ( 0x1FFF7A14 )
+#define         ID3                                 ( 0x1FFF7A18 )
 
 /*!
  * LED GPIO pins objects
  */
 Gpio_t Led1;
 Gpio_t Led2;
+Gpio_t Led3;
+Gpio_t Led4;
 
 /*
  * MCU objects
@@ -140,8 +142,10 @@ void BoardInitMcu( void )
         HAL_Init( );
 
         // LEDs
-        GpioInit( &Led1, LED_1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-        GpioInit( &Led2, LED_2, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+        GpioInit( &Led1, LED_1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+        GpioInit( &Led2, LED_2, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+        GpioInit( &Led3, LED_3, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+        GpioInit( &Led4, LED_4, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
 
         SystemClockConfig( );
 
@@ -171,7 +175,7 @@ void BoardInitMcu( void )
     SpiInit( &SX126x.Spi, SPI_1, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
     SX126xIoInit( );
 #elif defined( SX1272MB2DAS)
-    SpiInit( &SX1272.Spi, SPI_1, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
+    SpiInit( &SX1272.Spi, SPI_2, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );
     SX1272IoInit( );
 #elif defined( SX1276MB1LAS ) || defined( SX1276MB1MAS )
     SpiInit( &SX1276.Spi, SPI_1, RADIO_MOSI, RADIO_MISO, RADIO_SCLK, NC );

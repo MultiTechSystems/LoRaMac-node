@@ -319,9 +319,7 @@ static void JoinNetwork( void )
     LoRaMacStatus_t status;
     MlmeReq_t mlmeReq;
     mlmeReq.Type = MLME_JOIN;
-    mlmeReq.Req.Join.DevEui = DevEui;
-    mlmeReq.Req.Join.JoinEui = JoinEui;
-    mlmeReq.Req.Join.Datarate = LORAWAN_DEFAULT_DATARATE;
+    mlmeReq.Req.Join.Datarate = LORAWAN_DEFAULT_DATARATE;  
 
     // Starts the join procedure
     status = LoRaMacMlmeRequest( &mlmeReq );
@@ -969,6 +967,12 @@ int main( void )
                 }
                 else
                 {
+#if( OVER_THE_AIR_ACTIVATION == 0 )
+                    // Tell the MAC layer which network server version are we connecting too.
+                    mibReq.Type = MIB_ABP_LORAWAN_VERSION;
+                    mibReq.Param.AbpLrWanVersion.Value = ABP_ACTIVATION_LRWAN_VERSION;
+                    LoRaMacMibSetRequestConfirm( &mibReq );
+#endif
                     mibReq.Type = MIB_APP_KEY;
                     mibReq.Param.AppKey = AppKey;
                     LoRaMacMibSetRequestConfirm( &mibReq );
@@ -985,6 +989,21 @@ int main( void )
                     {
                         BoardGetUniqueId( DevEui );
                     }
+
+                    
+                    mibReq.Type = MIB_DEV_EUI;
+                    mibReq.Param.DevEui = DevEui;
+                    LoRaMacMibSetRequestConfirm( &mibReq );
+
+                    mibReq.Type = MIB_JOIN_EUI;
+                    mibReq.Param.JoinEui = JoinEui;
+                    LoRaMacMibSetRequestConfirm( &mibReq );
+
+                    mibReq.Type  = MIB_CHANNELS_MASK;
+                    uint16_t channelsMask[6] = {0x00FF, 0x0000, 0x0000, 0x0000, 0x0001, 0x0000};
+                    mibReq.Param.ChannelsMask = channelsMask;
+                    LoRaMacMibSetRequestConfirm( &mibReq );
+                    
 
 #if( OVER_THE_AIR_ACTIVATION == 0 )
                     // Choose a random device address if not already defined in Commissioning.h
@@ -1072,16 +1091,20 @@ int main( void )
             }
             case DEVICE_STATE_JOIN:
             {
-                printf( "DevEui      : %02X", DevEui[0] );
+                mibReq.Type = MIB_DEV_EUI;
+                LoRaMacMibGetRequestConfirm( &mibReq );
+                printf( "DevEui      : %02X", mibReq.Param.DevEui[0] );
                 for( int i = 1; i < 8; i++ )
                 {
-                    printf( "-%02X", DevEui[i] );
+                    printf( "-%02X", mibReq.Param.DevEui[i] );
                 }
                 printf( "\r\n" );
-                printf( "AppEui      : %02X", JoinEui[0] );
+                mibReq.Type = MIB_JOIN_EUI;
+                LoRaMacMibGetRequestConfirm( &mibReq );
+                printf( "AppEui      : %02X", mibReq.Param.JoinEui[0] );
                 for( int i = 1; i < 8; i++ )
                 {
-                    printf( "-%02X", JoinEui[i] );
+                    printf( "-%02X", mibReq.Param.JoinEui[i] );
                 }
                 printf( "\r\n" );
                 printf( "AppKey      : %02X", NwkKey[0] );
@@ -1106,11 +1129,6 @@ int main( void )
                     printf( " %02X", AppSKey[i] );
                 }
                 printf( "\n\r\n" );
-
-                // Tell the MAC layer which network server version are we connecting too.
-                mibReq.Type = MIB_ABP_LORAWAN_VERSION;
-                mibReq.Param.AbpLrWanVersion.Value = ABP_ACTIVATION_LRWAN_VERSION;
-                LoRaMacMibSetRequestConfirm( &mibReq );
 
                 mibReq.Type = MIB_NETWORK_ACTIVATION;
                 mibReq.Param.NetworkActivation = ACTIVATION_TYPE_ABP;

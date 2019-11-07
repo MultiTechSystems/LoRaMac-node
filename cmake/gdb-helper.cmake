@@ -66,7 +66,7 @@ function(generate_vscode_launch_openocd TARGET)
     set_property(CACHE OPENOCD_INTERFACE PROPERTY STRINGS ${OPENOCD_INTERFACE_LIST})
 
     # Available OpenOCD targets
-    set(OPENOCD_TARGET_LIST stm32l0.cfg stm32l1.cfg)
+    set(OPENOCD_TARGET_LIST stm32l0.cfg stm32l1.cfg stm32f4x.cfg)
     set(OPENOCD_TARGET stm32l1.cfg CACHE STRING "Default OPENOCD Target is stm32l1.cfg")
     set_property(CACHE OPENOCD_TARGET PROPERTY STRINGS ${OPENOCD_TARGET_LIST})
 
@@ -94,6 +94,12 @@ function(generate_vscode_launch_openocd TARGET)
     elseif(BOARD STREQUAL SAML21)
         set(OPENOCD_INTERFACE cmsis-dap.cfg)
         set(OPENOCD_TARGET at91samdXX.cfg)
+    elseif(BOARD STREQUAL MTS_MDOT)
+        set(OPENOCD_INTERFACE stlink-v2-1.cfg)
+        set(OPENOCD_TARGET stm32f4x.cfg)
+    elseif(BOARD STREQUAL MTS_XDOT)
+        set(OPENOCD_INTERFACE stlink-v2-1.cfg)
+        set(OPENOCD_TARGET stm32l1.cfg)
     endif()
 
 

@@ -22,6 +22,7 @@
  *
  * \author    MCD Application Team (C)( STMicroelectronics International )
  */
+#include <stdio.h>
 #include <math.h>
 #include <time.h>
 #include "stm32f4xx.h"
@@ -159,8 +160,30 @@ void RtcInit( void )
     RTC_DateTypeDef date;
     RTC_TimeTypeDef time;
 
+    RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
+
+
     if( RtcInitialized == false )
     {
+        __HAL_RCC_PWR_CLK_ENABLE();
+        HAL_PWR_EnableBkUpAccess();
+
+        RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
+        RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE;
+        RCC_OscInitStruct.LSEState       = RCC_LSE_ON;
+        if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+            printf("Cannot initialize RTC with LSE\n");
+        }
+
+        __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSE);
+
+        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
+        PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
+        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
+            printf("PeriphClkInitStruct RTC failed with LSE\n");
+        }
+
         __HAL_RCC_RTC_ENABLE( );
 
         RtcHandle.Instance            = RTC;
