@@ -60,6 +60,7 @@ typedef struct sFragDecoderStatus
 {
     uint16_t FragNbRx;
     uint16_t FragNbLost;
+    uint16_t FragNbFilled;
     uint16_t FragNbLastRx;
     uint8_t MatrixError;
 }FragDecoderStatus_t;

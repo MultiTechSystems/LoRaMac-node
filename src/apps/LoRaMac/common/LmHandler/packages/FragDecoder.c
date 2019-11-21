@@ -255,6 +255,7 @@ void FragDecoderInit( uint16_t fragNb, uint8_t fragSize, uint8_t *file, uint32_t
     FragDecoder.FragSize = fragSize;                            // number of byte on a row
     FragDecoder.Status.FragNbLastRx = 0;
     FragDecoder.Status.FragNbLost = 0;
+    FragDecoder.Status.FragNbFilled = 0;
     FragDecoder.M2BLine = 0;
 
     // Initialize missing fragments index array
@@ -330,7 +331,7 @@ int32_t FragDecoderProcess( uint16_t fragCounter, uint8_t *rawData )
 #else
         SetRow( FragDecoder.File, rawData, fragCounter - 1, FragDecoder.FragSize );
 #endif
-
+        FragDecoder.Status.FragNbFilled++;
         FragDecoder.FragNbMissingIndex[fragCounter - 1] = 0;
 
         // Update the FragDecoder.FragNbMissingIndex with the loosing frame
@@ -423,6 +424,7 @@ int32_t FragDecoderProcess( uint16_t fragCounter, uint8_t *rawData )
 #else
                 SetRow( FragDecoder.File, rawData, li, FragDecoder.FragSize );
 #endif
+                FragDecoder.Status.FragNbFilled++;
                 SetParity( firstOneInRow, FragDecoder.S, 1 );
                 FragDecoder.M2BLine++;
             }

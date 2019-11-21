@@ -245,11 +245,12 @@ static void LmhpFragmentationOnMcpsIndication( McpsIndication_t *mcpsIndication 
                 if( ( participants == 1 ) ||
                     ( ( participants == 0 ) && ( FragSessionData[fragIndex].FragDecoderStatus.FragNbLost > 0 ) ) )
                 {
+                    uint16_t indexNb = ( fragIndex << 14 ) | ( FragSessionData[fragIndex].FragDecoderStatus.FragNbRx  & 0x3FFF );
+                    int16_t fragNbMissing = FragSessionData[fragIndex].FragGroupData.FragNb - FragSessionData[fragIndex].FragDecoderStatus.FragNbFilled;
                     LmhpFragmentationState.DataBuffer[dataBufferIndex++] = FRAGMENTATION_FRAG_STATUS_ANS;
-                    LmhpFragmentationState.DataBuffer[dataBufferIndex++] = ( fragIndex << 14 ) |
-                                                                           ( ( FragSessionData[fragIndex].FragDecoderStatus.FragNbRx >> 8 ) & 0x3F );
-                    LmhpFragmentationState.DataBuffer[dataBufferIndex++] = FragSessionData[fragIndex].FragDecoderStatus.FragNbRx & 0xFF;
-                    LmhpFragmentationState.DataBuffer[dataBufferIndex++] = FragSessionData[fragIndex].FragDecoderStatus.FragNbLost;
+                    LmhpFragmentationState.DataBuffer[dataBufferIndex++] = ( ( indexNb >> 0 ) & 0xFF );
+                    LmhpFragmentationState.DataBuffer[dataBufferIndex++] = ( ( indexNb >> 8 ) & 0xFF );
+                    LmhpFragmentationState.DataBuffer[dataBufferIndex++] = ( fragNbMissing & 0xFF );
                     LmhpFragmentationState.DataBuffer[dataBufferIndex++] = FragSessionData[fragIndex].FragDecoderStatus.MatrixError & 0x01;
                     isAnswerDelayed = true;
                 }
