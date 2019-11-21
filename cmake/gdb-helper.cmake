@@ -98,7 +98,7 @@ function(generate_vscode_launch_openocd TARGET)
         set(OPENOCD_INTERFACE stlink-v2-1.cfg)
         set(OPENOCD_TARGET stm32f4x.cfg)
     elseif(BOARD STREQUAL MTS_XDOT)
-        set(OPENOCD_INTERFACE stlink-v2-1.cfg)
+        set(OPENOCD_INTERFACE cmsis-dap.cfg)
         set(OPENOCD_TARGET stm32l1.cfg)
     endif()
 

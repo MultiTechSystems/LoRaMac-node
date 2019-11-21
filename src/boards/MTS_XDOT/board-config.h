@@ -65,6 +65,7 @@
 
 #define LED_1                                       NC
 #define LED_2                                       NC
+#define LED_PROX                                    NC
 
 // Debug pins definition.
 #define RADIO_DBG_PIN_TX                            NC
