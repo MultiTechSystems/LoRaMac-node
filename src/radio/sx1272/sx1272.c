@@ -237,7 +237,7 @@ void SX1272Init( RadioEvents_t *events )
         printf("write %x, read %x, addr %x \r\n",a , SX1272Read(RadioRegsInit[i].Addr), RadioRegsInit[i].Addr);
     }
     //while(1){}
-    SX1272SetModem( MODEM_FSK );
+    SX1272SetModem( MODEM_LORA );
 
     SX1272.Settings.State = RF_IDLE;
 }
@@ -249,6 +249,7 @@ RadioState_t SX1272GetStatus( void )
 
 void SX1272SetChannel( uint32_t freq )
 {
+    freq += 5000;
     SX1272.Settings.Channel = freq;
     freq = ( uint32_t )( ( double )freq / ( double )FREQ_STEP );
     SX1272Write( REG_FRFMSB, ( uint8_t )( ( freq >> 16 ) & 0xFF ) );
@@ -495,7 +496,7 @@ void SX1272SetTxConfig( RadioModems_t modem, int8_t power, uint32_t fdev,
                         uint8_t hopPeriod, bool iqInverted, uint32_t timeout )
 {
     SX1272SetModem( modem );
-    SX1272SetRfTxPower( 20 );
+    SX1272SetRfTxPower( power );
 
     switch( modem )
     {
@@ -533,7 +534,7 @@ void SX1272SetTxConfig( RadioModems_t modem, int8_t power, uint32_t fdev,
         break;
     case MODEM_LORA:
         {
-            SX1272.Settings.LoRa.Power = 20;
+            SX1272.Settings.LoRa.Power = power;
             SX1272.Settings.LoRa.Bandwidth = bandwidth;
             SX1272.Settings.LoRa.Datarate = datarate;
             SX1272.Settings.LoRa.Coderate = coderate;
