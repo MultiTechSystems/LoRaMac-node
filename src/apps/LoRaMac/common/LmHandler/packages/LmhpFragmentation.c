@@ -423,7 +423,7 @@ static void LmhpFragmentationOnMcpsIndication( McpsIndication_t *mcpsIndication 
                     if( FragSessionData[fragIndex].FragDecoderPorcessStatus >= 0 )
                     {
                         // Fragmentation successfully done
-                        FragSessionData[fragIndex].FragDecoderPorcessStatus = FRAG_SESSION_NOT_STARTED;
+                        FragSessionData[fragIndex].FragDecoderPorcessStatus = FRAG_SESSION_FINISHED;
                         if( LmhpFragmentationParams->OnDone != NULL )
                         {
 #if( FRAG_DECODER_FILE_HANDLING_NEW_API == 1 )
