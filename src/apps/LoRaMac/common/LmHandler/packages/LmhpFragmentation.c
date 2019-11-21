@@ -43,6 +43,9 @@ typedef struct LmhpFragmentationState_s
     uint8_t DataBufferMaxSize;
     uint8_t *DataBuffer;
     uint8_t *file;
+    bool DelayedResponsePending;
+    SysTime_t DelayedResponseTimeout;
+    uint32_t DelayedResponseDataBufferIndex;
 }LmhpFragmentationState_t;
 
 typedef enum LmhpFragmentationMoteCmd_e
@@ -107,7 +110,8 @@ static void LmhpFragmentationOnMcpsIndication( McpsIndication_t *mcpsIndication 
 static LmhpFragmentationState_t LmhpFragmentationState =
 {
     .Initialized = false,
-    .IsRunning = false
+    .IsRunning = false,
+    .DelayedResponsePending = false
 };
 
 typedef struct FragGroupData_s
@@ -209,7 +213,23 @@ static bool LmhpFragmentationIsRunning( void )
 static void LmhpFragmentationProcess( void )
 {
     // TODO: Start a timer to randomly delay the answer
-
+    if ( LmhpFragmentationState.DelayedResponsePending )
+    {
+        SysTime_t curTime = SysTimeGet( );
+        if ( ( ( LmhpFragmentationState.DelayedResponseTimeout.Seconds == curTime.Seconds ) &&
+               ( LmhpFragmentationState.DelayedResponseTimeout.SubSeconds < curTime.SubSeconds ) ) ||
+             ( LmhpFragmentationState.DelayedResponseTimeout.Seconds < curTime.Seconds ) )
+        {
+            LmHandlerAppData_t appData =
+            {
+                .Buffer = LmhpFragmentationState.DataBuffer,
+                .BufferSize = LmhpFragmentationState.DelayedResponseDataBufferIndex,
+                .Port = FRAGMENTATION_PORT
+            };
+            LmhpFragmentationPackage.OnSendRequest( &appData, LORAMAC_HANDLER_UNCONFIRMED_MSG );
+            LmhpFragmentationState.DelayedResponsePending = false;
+        }
+    }
 }
 
 static void LmhpFragmentationOnMcpsIndication( McpsIndication_t *mcpsIndication )
@@ -430,6 +450,11 @@ static void LmhpFragmentationOnMcpsIndication( McpsIndication_t *mcpsIndication 
     if( isAnswerDelayed == true )
     {
         // TODO: Start a timer to randomly delay the answer
+        LmhpFragmentationState.DelayedResponseDataBufferIndex = dataBufferIndex;
+        LmhpFragmentationState.DelayedResponseTimeout = SysTimeGet( );
+        LmhpFragmentationState.DelayedResponseTimeout.Seconds += randr( 0, 3 );
+        LmhpFragmentationState.DelayedResponseTimeout.SubSeconds = randr( 0, 1000 );
+        LmhpFragmentationState.DelayedResponsePending = true;
     }
     else
     {
