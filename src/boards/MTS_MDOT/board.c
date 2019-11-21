@@ -59,7 +59,10 @@ Gpio_t Led4;
 /*
  * MCU objects
  */
+Uart_t Uart1;
 Uart_t Uart2;
+
+#define DEBUG_UART  Uart1
 
 /*!
  * Initializes the unused GPIO to a know status
@@ -95,6 +98,15 @@ static bool McuInitialized = false;
  * Flag used to indicate if board is powered from the USB
  */
 static bool UsbIsConnected = false;
+
+/*!
+ * UART1 FIFO buffers size
+ */
+#define UART1_FIFO_TX_SIZE                                2048
+#define UART1_FIFO_RX_SIZE                                1024
+
+uint8_t Uart1TxBuffer[UART1_FIFO_TX_SIZE];
+uint8_t Uart1RxBuffer[UART1_FIFO_RX_SIZE];
 
 /*!
  * UART2 FIFO buffers size
@@ -151,11 +163,17 @@ void BoardInitMcu( void )
 
         UsbIsConnected = true;
 
+        FifoInit( &Uart1.FifoTx, Uart1TxBuffer, UART1_FIFO_TX_SIZE );
+        FifoInit( &Uart1.FifoRx, Uart1RxBuffer, UART1_FIFO_RX_SIZE );
+        // Configure your terminal for 8 Bits data (7 data bit + 1 parity bit), no parity and no flow ctrl
+        UartInit( &Uart1, UART_1, DEBUG_UART_TX, DEBUG_UART_RX );
+        UartConfig( &Uart1, RX_TX, 115200, UART_8_BIT, UART_1_STOP_BIT, NO_PARITY, NO_FLOW_CTRL );
+
         FifoInit( &Uart2.FifoTx, Uart2TxBuffer, UART2_FIFO_TX_SIZE );
         FifoInit( &Uart2.FifoRx, Uart2RxBuffer, UART2_FIFO_RX_SIZE );
         // Configure your terminal for 8 Bits data (7 data bit + 1 parity bit), no parity and no flow ctrl
         UartInit( &Uart2, UART_2, UART_TX, UART_RX );
-        UartConfig( &Uart2, RX_TX, 115200, UART_8_BIT, UART_1_STOP_BIT, NO_PARITY, NO_FLOW_CTRL );
+        UartConfig( &Uart2, RX_TX, 115200, UART_8_BIT, UART_2_STOP_BIT, NO_PARITY, NO_FLOW_CTRL );
 
         RtcInit( );
 
@@ -429,7 +447,7 @@ void BoardLowPowerHandler( void )
  */
 int _write( int fd, const void *buf, size_t count )
 {
-    while( UartPutBuffer( &Uart2, ( uint8_t* )buf, ( uint16_t )count ) != 0 ){ };
+    while( UartPutBuffer( &DEBUG_UART, ( uint8_t* )buf, ( uint16_t )count ) != 0 ) { };
     return count;
 }
 
@@ -439,9 +457,9 @@ int _write( int fd, const void *buf, size_t count )
 int _read( int fd, const void *buf, size_t count )
 {
     size_t bytesRead = 0;
-    while( UartGetBuffer( &Uart2, ( uint8_t* )buf, count, ( uint16_t* )&bytesRead ) != 0 ){ };
+    while( UartGetBuffer( &DEBUG_UART, ( uint8_t* )buf, count, ( uint16_t* )&bytesRead ) != 0 ){ };
     // Echo back the character
-    while( UartPutBuffer( &Uart2, ( uint8_t* )buf, ( uint16_t )bytesRead ) != 0 ){ };
+    while( UartPutBuffer( &DEBUG_UART, ( uint8_t* )buf, ( uint16_t )bytesRead ) != 0 ){ };
     return bytesRead;
 }
 
@@ -450,16 +468,16 @@ int _read( int fd, const void *buf, size_t count )
 // Keil compiler
 int fputc( int c, FILE *stream )
 {
-    while( UartPutChar( &Uart2, ( uint8_t )c ) != 0 );
+    while( UartPutChar( &DEBUG_UART, ( uint8_t )c ) != 0 );
     return c;
 }
 
 int fgetc( FILE *stream )
 {
     uint8_t c = 0;
-    while( UartGetChar( &Uart2, &c ) != 0 );
+    while( UartGetChar( &DEBUG_UART, &c ) != 0 );
     // Echo back the character
-    while( UartPutChar( &Uart2, c ) != 0 );
+    while( UartPutChar( &DEBUG_UART, c ) != 0 );
     return ( int )c;
 }
 

@@ -93,8 +93,8 @@
 #define LED_4                                       PA_11   /* D6 */
 
 // Debug pins definition.
-#define RADIO_DBG_PIN_TX                            PA_9
-#define RADIO_DBG_PIN_RX                            PA_10
+#define RADIO_DBG_PIN_TX                            NC
+#define RADIO_DBG_PIN_RX                            NC
 
 #endif
 
@@ -109,6 +109,9 @@
 
 #define I2C_SCL                                     PA_8
 #define I2C_SDA                                     PC_9
+
+#define DEBUG_UART_TX                               PA_9
+#define DEBUG_UART_RX                               PA_10
 
 #define UART_TX                                     PA_2
 #define UART_RX                                     PA_3
